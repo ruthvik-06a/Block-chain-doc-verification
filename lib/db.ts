@@ -618,4 +618,69 @@ export class Database {
     this.write(db);
     return newV;
   }
+
+  // --- Document Verification Requests (Holder <-> Issuer Workflow) ---
+  static updateVerificationRequest(
+    certIdStr: string,
+    status: 'PENDING' | 'APPROVED' | 'REJECTED',
+    notes?: string,
+    actorId?: string,
+    actorName?: string,
+    actorRole?: UserRole
+  ): Certificate {
+    const db = this.read();
+    const certIndex = db.certificates.findIndex(c => c.id === certIdStr || c.certificateId.toLowerCase() === certIdStr.toLowerCase());
+    if (certIndex === -1) throw new Error("Certificate not found");
+
+    const cert = db.certificates[certIndex];
+    const now = new Date().toISOString();
+
+    cert.verificationRequestStatus = status;
+    if (notes) cert.requestNotes = notes;
+    cert.updatedAt = now;
+
+    const action = status === 'PENDING' 
+      ? 'VERIFICATION_REQUESTED' 
+      : status === 'APPROVED' 
+        ? 'VERIFICATION_APPROVED' 
+        : 'VERIFICATION_REJECTED';
+
+    const desc = status === 'PENDING'
+      ? `Holder requested verification for ${cert.certificateId}: ${notes || 'Standard validation request'}`
+      : status === 'APPROVED'
+        ? `Issuer approved verification for ${cert.certificateId}: ${notes || 'Confirmed authentic and in good standing'}`
+        : `Issuer rejected verification for ${cert.certificateId}: ${notes || 'Document requires re-submission'}`;
+
+    const auditId = `aud-${Date.now()}`;
+    const eventId = `EVT-${Math.floor(1000 + Math.random() * 9000)}`;
+    const eventHash = generateAuditEventHash({
+      eventId,
+      action,
+      actorId: actorId || "usr-holder",
+      certificateId: cert.certificateId,
+      version: cert.currentVersion,
+      timestamp: now,
+      description: desc
+    });
+
+    db.auditLogs.unshift({
+      id: auditId,
+      eventId,
+      action,
+      actorId: actorId || "usr-holder",
+      actorName: actorName || (status === 'PENDING' ? "Document Holder" : "Authorized Issuer"),
+      actorRole: actorRole || (status === 'PENDING' ? "PUBLIC_USER" : "ISSUER"),
+      organizationId: cert.organizationId,
+      organizationName: cert.organizationName,
+      certificateId: cert.certificateId,
+      version: cert.currentVersion,
+      description: desc,
+      eventHash,
+      timestamp: now,
+      ipAddress: "127.0.0.1"
+    });
+
+    this.write(db);
+    return cert;
+  }
 }

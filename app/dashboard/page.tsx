@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { 
   FileText, CheckCircle2, XCircle, AlertTriangle, Activity, 
   ShieldAlert, ArrowUpRight, Sparkles, ShieldCheck, UserCheck, 
-  Building2, Users, Download, Share2, Clock, Lock, Check, AlertCircle, RefreshCw
+  Building2, Users, Download, Share2, Clock, Lock, Check, AlertCircle, 
+  RefreshCw, Copy, CheckCheck, Send, Plus
 } from 'lucide-react';
 import { Certificate, AuditLog, Verification, User } from '@/lib/db';
 import QRCodeModal from '@/components/QRCodeModal';
@@ -18,6 +19,17 @@ export default function DashboardPage() {
   const [pendingIssuers, setPendingIssuers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCertForQR, setSelectedCertForQR] = useState<Certificate | null>(null);
+  const [copiedCertId, setCopiedCertId] = useState<string | null>(null);
+
+  // User Verification Request State
+  const [requestModalCert, setRequestModalCert] = useState<Certificate | null>(null);
+  const [requestNotes, setRequestNotes] = useState('');
+  const [submittingRequest, setSubmittingRequest] = useState(false);
+
+  // Issuer Reject Modal State
+  const [rejectModalCert, setRejectModalCert] = useState<Certificate | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [submittingAction, setSubmittingAction] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -72,8 +84,67 @@ export default function DashboardPage() {
     }
   };
 
+  const handleVerificationRequestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!requestModalCert) return;
+    setSubmittingRequest(true);
+    try {
+      const res = await fetch('/api/certificates/request-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          certificateId: requestModalCert.certificateId,
+          status: 'PENDING',
+          notes: requestNotes || 'Holder requested official verification'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestModalCert(null);
+        setRequestNotes('');
+        fetchDashboardData();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmittingRequest(false);
+    }
+  };
+
+  const handleIssuerQueueAction = async (certificateId: string, status: 'APPROVED' | 'REJECTED', notes?: string) => {
+    setSubmittingAction(true);
+    try {
+      const res = await fetch('/api/certificates/request-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          certificateId,
+          status,
+          notes: notes || (status === 'APPROVED' ? 'Approved by Authorized Issuer' : 'Verification request rejected')
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRejectModalCert(null);
+        setRejectReason('');
+        fetchDashboardData();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmittingAction(false);
+    }
+  };
+
   const handleDownloadPDF = (certId: string) => {
     window.open(`/api/demo/generate-pdf?id=${certId}`, '_blank');
+  };
+
+  const handleCopyLink = (certId: string) => {
+    const url = `${window.location.origin}/verify/${certId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedCertId(certId);
+    setTimeout(() => setCopiedCertId(null), 2500);
   };
 
   if (loading) {
@@ -276,16 +347,29 @@ export default function DashboardPage() {
                 Document Holder
               </span>
             </h1>
-            <p className="text-sm text-slate-400 mt-1">View, download, and share your verified authentic documents.</p>
+            <p className="text-sm text-slate-400 mt-1">View, download, share, and track verification requests for your credentials.</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/verify"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs px-4 py-2.5 rounded-xl border border-slate-700 flex items-center gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              Verify Any PDF
+            </Link>
           </div>
         </div>
 
         {/* DOCUMENT WALLET GRID */}
         <div className="space-y-4">
-          <h3 className="font-bold text-xl text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-emerald-400" />
-            My Issued Documents ({userDocs.length})
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-xl text-white flex items-center gap-2">
+              <FileText className="w-5 h-5 text-emerald-400" />
+              My Issued Documents ({userDocs.length})
+            </h3>
+            <span className="text-xs font-mono text-slate-400">Synced to Web3 Identity</span>
+          </div>
 
           {userDocs.length === 0 ? (
             <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-12 text-center space-y-3">
@@ -295,66 +379,166 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {userDocs.map((cert) => (
-                <div 
-                  key={cert.id}
-                  className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl hover:border-emerald-500/40 transition-all group"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-                        {cert.certificateId}
-                      </span>
-                      <h4 className="font-bold text-base text-white mt-1 group-hover:text-emerald-300 transition-colors">
-                        {cert.course}
-                      </h4>
-                      <p className="text-xs text-slate-400">{cert.organizationName}</p>
+              {userDocs.map((cert) => {
+                const reqStatus = cert.verificationRequestStatus || 'NONE';
+                return (
+                  <div 
+                    key={cert.id}
+                    className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl hover:border-emerald-500/40 transition-all group flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                            {cert.certificateId}
+                          </span>
+                          <h4 className="font-bold text-base text-white mt-1 group-hover:text-emerald-300 transition-colors">
+                            {cert.course}
+                          </h4>
+                          <p className="text-xs text-slate-400">{cert.organizationName}</p>
+                        </div>
+
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${
+                          cert.status === 'ACTIVE' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' :
+                          cert.status === 'REVOKED' ? 'bg-rose-950 text-rose-400 border-rose-800' :
+                          'bg-amber-950 text-amber-400 border-amber-800'
+                        }`}>
+                          {cert.status}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-slate-400 space-y-1 font-mono bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                        <p>Holder: <span className="text-slate-200">{cert.subjectName}</span></p>
+                        <p>Issued: <span className="text-slate-200">{cert.issueDate}</span></p>
+                        {cert.cgpa && <p>Score/CGPA: <span className="text-emerald-400 font-bold">{cert.cgpa}</span></p>}
+                      </div>
+
+                      {/* REAL-TIME STATUS TRACKER BADGE */}
+                      <div className="p-2.5 rounded-xl border bg-slate-950/70 border-slate-800 text-xs flex items-center justify-between">
+                        <span className="text-[11px] text-slate-400 font-mono">Verification Status:</span>
+                        {reqStatus === 'PENDING' ? (
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
+                            <Clock className="w-3 h-3 animate-spin" /> Pending Issuer Review
+                          </span>
+                        ) : reqStatus === 'APPROVED' ? (
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Verified Authentic
+                          </span>
+                        ) : reqStatus === 'REJECTED' ? (
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">
+                            <XCircle className="w-3 h-3" /> Rejected
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                            Verified on Chain
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${
-                      cert.status === 'ACTIVE' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' :
-                      cert.status === 'REVOKED' ? 'bg-rose-950 text-rose-400 border-rose-800' :
-                      'bg-amber-950 text-amber-400 border-amber-800'
-                    }`}>
-                      {cert.status}
-                    </span>
+                    {/* ACTIONS: Download, Share, Request Verification */}
+                    <div className="space-y-2 pt-3 border-t border-slate-800 text-xs">
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          onClick={() => handleDownloadPDF(cert.id)}
+                          className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                          title="Download Official PDF"
+                        >
+                          <Download className="w-3.5 h-3.5 text-emerald-400" />
+                          PDF
+                        </button>
+
+                        <button
+                          onClick={() => setSelectedCertForQR(cert)}
+                          className="flex-1 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-bold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                          title="View QR Code"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          QR
+                        </button>
+
+                        <button
+                          onClick={() => handleCopyLink(cert.certificateId)}
+                          className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                          title="Copy Share Link"
+                        >
+                          {copiedCertId === cert.certificateId ? (
+                            <>
+                              <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5 text-sky-400" />
+                              Link
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* REQUEST VERIFICATION ACTION BUTTON */}
+                      {reqStatus !== 'PENDING' && (
+                        <button
+                          onClick={() => { setRequestModalCert(cert); setRequestNotes(''); }}
+                          className="w-full bg-sky-950/80 hover:bg-sky-900 border border-sky-800/80 text-sky-300 font-bold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs"
+                        >
+                          <Send className="w-3.5 h-3.5 text-sky-400" />
+                          Request Issuer Verification
+                        </button>
+                      )}
+                    </div>
                   </div>
-
-                  <div className="text-xs text-slate-400 space-y-1 font-mono bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                    <p>Holder: <span className="text-slate-200">{cert.subjectName}</span></p>
-                    <p>Issued: <span className="text-slate-200">{cert.issueDate}</span></p>
-                    {cert.cgpa && <p>Score/CGPA: <span className="text-emerald-400 font-bold">{cert.cgpa}</span></p>}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
-                    <button
-                      onClick={() => handleDownloadPDF(cert.id)}
-                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5 text-emerald-400" />
-                      PDF
-                    </button>
-
-                    <button
-                      onClick={() => setSelectedCertForQR(cert)}
-                      className="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      QR Code
-                    </button>
-
-                    <Link
-                      href={`/verify/${cert.certificateId}`}
-                      className="text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-0.5"
-                    >
-                      Verify →
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
+
+        {/* REQUEST VERIFICATION MODAL */}
+        {requestModalCert && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-sky-500/40 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+              <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                <Send className="w-5 h-5 text-sky-400" />
+                Request Document Verification
+              </h3>
+              <p className="text-xs text-slate-400">
+                Submit a formal verification request to <span className="text-white font-bold">{requestModalCert.organizationName}</span> for document <span className="font-mono text-sky-300">{requestModalCert.certificateId}</span>.
+              </p>
+
+              <form onSubmit={handleVerificationRequestSubmit} className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Additional Notes / Request Reason</label>
+                  <textarea
+                    rows={3}
+                    value={requestNotes}
+                    onChange={(e) => setRequestNotes(e.target.value)}
+                    placeholder="e.g. Submitting for background verification for job application at Tech Corp..."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setRequestModalCert(null)}
+                    className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingRequest}
+                    className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-md flex items-center gap-2"
+                  >
+                    {submittingRequest && <RefreshCw className="w-4 h-4 animate-spin" />}
+                    Submit Request
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {selectedCertForQR && (
           <QRCodeModal
@@ -368,6 +552,8 @@ export default function DashboardPage() {
   }
 
   // --- 4. AUTHORIZED ISSUER DASHBOARD (Dashboard B) ---
+  const pendingQueue = certificates.filter(c => c.verificationRequestStatus === 'PENDING');
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
@@ -380,12 +566,12 @@ export default function DashboardPage() {
               Authorized Issuer Node
             </span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Issue signed documents and manage verification requests.</p>
+          <p className="text-sm text-slate-400 mt-1">Issue signed documents, sign revisions, and process holder verification queues.</p>
         </div>
 
         <Link
           href="/certificates/create"
-          className="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-sky-600/30 flex items-center gap-2 transition-transform hover:scale-105"
+          className="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-sky-600/30 flex items-center gap-2 transition-transform hover:scale-105"
         >
           <Sparkles className="w-4 h-4" />
           Issue New Document
@@ -404,21 +590,21 @@ export default function DashboardPage() {
 
         <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider">
-            <span>Active Valid</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span>Queue Requests</span>
+            <Clock className="w-4 h-4 text-amber-400" />
           </div>
-          <p className="text-3xl font-extrabold text-emerald-400 font-mono">
-            {certificates.filter(c => c.status === 'ACTIVE').length}
+          <p className="text-3xl font-extrabold text-amber-400 font-mono">
+            {pendingQueue.length}
           </p>
         </div>
 
         <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider">
-            <span>Revoked</span>
-            <XCircle className="w-4 h-4 text-rose-400" />
+            <span>Active Valid</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="text-3xl font-extrabold text-rose-400 font-mono">
-            {certificates.filter(c => c.status === 'REVOKED').length}
+          <p className="text-3xl font-extrabold text-emerald-400 font-mono">
+            {certificates.filter(c => c.status === 'ACTIVE').length}
           </p>
         </div>
 
@@ -431,11 +617,80 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ISSUED DOCUMENTS TABLE */}
+      {/* VERIFICATION QUEUE (Holder Verification Requests) */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <h3 className="font-bold text-lg text-white">Issued Document Records</h3>
-          <Link href="/certificates" className="text-xs text-sky-400 hover:text-sky-300 font-semibold">View All →</Link>
+          <div className="flex items-center gap-3">
+            <h3 className="font-bold text-lg text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-amber-400" />
+              Document Verification Queue
+            </h3>
+            <span className="text-xs font-mono bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-800">
+              {pendingQueue.length} Pending Actions
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 font-mono hidden sm:block">Instant Review & Status Anchor</p>
+        </div>
+
+        {pendingQueue.length === 0 ? (
+          <div className="p-8 text-center text-slate-400 text-xs space-y-2">
+            <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto opacity-80" />
+            <p>Verification queue is clear! All holder requests have been audited.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px] uppercase">
+                  <th className="py-3 px-2">Record ID</th>
+                  <th className="py-3 px-2">Holder Name</th>
+                  <th className="py-3 px-2">Course / Document</th>
+                  <th className="py-3 px-2">Request Notes</th>
+                  <th className="py-3 px-2 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 font-medium">
+                {pendingQueue.map((cert) => (
+                  <tr key={cert.id} className="hover:bg-slate-800/50 transition-colors">
+                    <td className="py-3 px-2 font-mono font-bold text-sky-400">{cert.certificateId}</td>
+                    <td className="py-3 px-2 text-slate-200">{cert.subjectName}</td>
+                    <td className="py-3 px-2 text-slate-300">{cert.course}</td>
+                    <td className="py-3 px-2 text-amber-300/90 font-mono text-[11px]">
+                      {cert.requestNotes || 'Verification request from holder'}
+                    </td>
+                    <td className="py-3 px-2 text-right space-x-2">
+                      <button
+                        onClick={() => handleIssuerQueueAction(cert.certificateId, 'APPROVED')}
+                        disabled={submittingAction}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1 shadow-md shadow-emerald-950"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => { setRejectModalCert(cert); setRejectReason(''); }}
+                        disabled={submittingAction}
+                        className="bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700 font-bold text-xs px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        Reject
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ISSUED DOCUMENTS WORKSPACE TABLE */}
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          <h3 className="font-bold text-lg text-white">Issued Document Workspace</h3>
+          <Link href="/certificates/create" className="text-xs text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> Issue New Record
+          </Link>
         </div>
 
         <div className="overflow-x-auto">
@@ -480,6 +735,54 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* ISSUER REJECT REASON MODAL */}
+      {rejectModalCert && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-rose-500/40 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 className="font-bold text-lg text-white flex items-center gap-2">
+              <XCircle className="w-5 h-5 text-rose-400" />
+              Reject Verification Request
+            </h3>
+            <p className="text-xs text-slate-400">
+              State the reason for rejecting document verification for <span className="font-mono text-white">{rejectModalCert.certificateId}</span>. This will be recorded on the audit log.
+            </p>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Rejection Reason</label>
+                <textarea
+                  rows={3}
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="e.g. Unverified marksheet revision or mismatched identity details..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-rose-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRejectModalCert(null)}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={submittingAction}
+                  onClick={() => handleIssuerQueueAction(rejectModalCert.certificateId, 'REJECTED', rejectReason)}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-md flex items-center gap-2"
+                >
+                  {submittingAction && <RefreshCw className="w-4 h-4 animate-spin" />}
+                  Confirm Rejection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
