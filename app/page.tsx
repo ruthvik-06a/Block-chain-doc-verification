@@ -2,167 +2,279 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, CheckCircle2, FileText, Cpu, Lock, Sparkles, ArrowRight, ShieldAlert, GitBranch, RefreshCw, Upload, Search, Download, HelpCircle, Building2, Check } from 'lucide-react';
+import { 
+  ShieldCheck, CheckCircle2, FileText, Cpu, Lock, Sparkles, ArrowRight, 
+  ShieldAlert, GitBranch, RefreshCw, Upload, Search, Download, HelpCircle, 
+  Building2, Check, ExternalLink, Box, Activity, Layers, Wallet, Terminal, Globe
+} from 'lucide-react';
 
 export default function LandingPage() {
   const [certInput, setCertInput] = useState('CERT-2027-001024');
 
   return (
-    <div className="space-y-24 pb-24">
+    <div className="relative bg-[#050608] text-slate-100 min-h-screen overflow-hidden font-sans selection:bg-sky-500/30 selection:text-sky-200">
       
-      {/* HERO SECTION */}
-      <section className="relative pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden">
-        
-        {/* Decorative Grid & Glow */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-sky-500/15 blur-[120px] rounded-full pointer-events-none" />
+      {/* BACKGROUND DECORATIVE GLOW & GRID */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(56,189,248,0.08),rgba(255,255,255,0))]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      {/* FAR-LEFT CYBERNETIC SPEC SIDEBAR (Reference Image Match) */}
+      <div className="hidden lg:flex fixed left-3 top-1/4 bottom-1/4 z-20 flex-col justify-between items-center text-[10px] font-mono text-slate-600 tracking-widest uppercase pointer-events-none select-none">
+        <span className="rotate-[-90deg] origin-center whitespace-nowrap">CYBERNETIC SPECS</span>
+        <span className="rotate-[-90deg] origin-center whitespace-nowrap">-0.321/06</span>
+        <span className="rotate-[-90deg] origin-center whitespace-nowrap">IEEE S$aY</span>
+        <span className="rotate-[-90deg] origin-center whitespace-nowrap">VERICHAIN CORE</span>
+      </div>
+
+      {/* TOP HERO SECTION */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 md:pt-20 md:pb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-950/80 border border-sky-500/30 text-sky-300 text-xs font-mono font-medium mb-8 shadow-inner animate-in fade-in slide-in-from-bottom-3">
-            <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
-            <span>Blockchain-Backed Tamper-Evident Audit Trail</span>
+          {/* LEFT HERO COLUMN */}
+          <div className="lg:col-span-7 space-y-8 z-10">
+            
+            {/* Top Monospace Tagline */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/60 text-slate-300 text-xs font-mono font-medium shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>NEXUS ARCHITECTURE • VERICHAIN V1.0</span>
+            </div>
+
+            {/* Main Metallic Headline */}
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight font-serif leading-[1.08] text-white">
+              The Immutable Proof, <br />
+              <span className="bg-gradient-to-r from-slate-100 via-slate-300 to-amber-200/90 bg-clip-text text-transparent filter drop-shadow-[0_0_25px_rgba(255,255,255,0.2)]">
+                Connected.
+              </span>
+            </h1>
+
+            {/* All-Caps Monospace Subtitle */}
+            <p className="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-widest max-w-xl leading-relaxed">
+              UNMATCHED INTEGRITY, SPEED, AND IMMUTABILITY FOR THE NEXT GENERATION OF ON-CHAIN DOCUMENT VERIFICATION.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-5 pt-2">
+              <Link
+                href="/dashboard"
+                className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-gradient-to-r from-slate-800/90 via-slate-900 to-slate-950 border border-slate-400/30 text-white font-semibold text-sm shadow-xl shadow-sky-500/10 hover:border-slate-200/70 transition-all hover:scale-105"
+              >
+                <span>Launch App</span>
+                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              </Link>
+
+              <Link
+                href="/verify"
+                className="text-slate-300 hover:text-white font-medium text-sm flex items-center gap-2 transition-colors px-4 py-3"
+              >
+                <span>Verify Document</span>
+                <span className="text-slate-500 font-mono">→</span>
+              </Link>
+            </div>
+
+            {/* Quick Record Verification Input Bar */}
+            <div className="pt-4 max-w-xl">
+              <div className="bg-slate-900/70 backdrop-blur-md p-2 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-2">
+                <Search className="w-5 h-5 text-slate-500 ml-3 shrink-0" />
+                <input
+                  type="text"
+                  value={certInput}
+                  onChange={(e) => setCertInput(e.target.value)}
+                  placeholder="Enter Certificate ID (e.g. CERT-2027-001024)"
+                  className="bg-transparent text-slate-100 placeholder-slate-500 text-xs focus:outline-none w-full font-mono px-2"
+                />
+                <Link
+                  href={`/verify/${certInput}`}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-5 py-2.5 rounded-xl font-mono font-bold text-xs shrink-0 transition-all hover:border-sky-400"
+                >
+                  Verify Now
+                </Link>
+              </div>
+            </div>
+
+            {/* Code Snippet Overlay Background (As seen in image) */}
+            <div className="pt-4 hidden sm:block font-mono text-[11px] text-slate-600/70 space-y-1 select-none pointer-events-none">
+              <p>// smart-contract-anchor.sol</p>
+              <p>function verifyRecord(bytes32 recordHash) public view returns (bool) &#123;</p>
+              <p className="pl-4">require(min_nodes &gt;= 30, "Consensus threshold reached");</p>
+              <p className="pl-4">return hash_chain[recordHash].status == Status.Active;</p>
+              <p>&#125;</p>
+            </div>
+
           </div>
 
-          {/* Main Title */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-tight">
-            Trust Every Document. <br />
-            <span className="bg-gradient-to-r from-sky-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
-              GitHub for Trusted Records.
-            </span>
-          </h1>
+          {/* RIGHT HERO COLUMN: 3D METALLIC ORBITAL SPHERE & STATS OVERLAY */}
+          <div className="lg:col-span-5 relative flex items-center justify-center">
+            
+            {/* Ambient Background Sphere Glow */}
+            <div className="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-sky-500/10 blur-[100px] pointer-events-none" />
 
-          {/* Subtitle */}
-          <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
-            Issue, verify, version, and audit official records using blockchain-backed cryptographic proof. Protect degree certificates, marksheets, medical records, and legal credentials from tampering.
-          </p>
+            {/* 3D ORBITAL GYROSCOPE GRAPHIC */}
+            <div className="relative w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] flex items-center justify-center">
+              
+              {/* Outer Rotating Ring 1 */}
+              <div className="absolute inset-0 rounded-full border border-slate-400/20 animate-spin-slow shadow-[0_0_30px_rgba(255,255,255,0.05)] transform rotate-45" />
 
-          {/* Call to Actions */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/verify"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-base shadow-xl shadow-sky-600/30 flex items-center justify-center gap-2 transition-all hover:scale-105"
-            >
-              <CheckCircle2 className="w-5 h-5 text-emerald-300" />
-              Verify a Document
-            </Link>
-            <Link
-              href="/dashboard"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold text-base flex items-center justify-center gap-2 transition-all hover:border-slate-500"
-            >
-              Get Started / Dashboard
-              <ArrowRight className="w-5 h-5 text-slate-400" />
-            </Link>
-          </div>
+              {/* Reverse Rotating Ring 2 with Metallic Ellipse */}
+              <div className="absolute inset-4 rounded-full border-2 border-slate-300/30 animate-spin-reverse-slow transform -rotate-12 border-dashed" />
 
-          {/* Live Quick Verification Input Bar */}
-          <div className="mt-12 max-w-2xl mx-auto bg-slate-900/90 p-2.5 rounded-2xl border border-sky-500/30 shadow-2xl flex items-center gap-2">
-            <Search className="w-5 h-5 text-slate-400 ml-3 shrink-0" />
-            <input
-              type="text"
-              value={certInput}
-              onChange={(e) => setCertInput(e.target.value)}
-              placeholder="Enter Certificate ID (e.g. CERT-2027-001024)"
-              className="bg-transparent text-slate-100 placeholder-slate-500 text-sm focus:outline-none w-full font-mono px-2"
-            />
-            <Link
-              href={`/verify/${certInput}`}
-              className="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shrink-0 transition-colors"
-            >
-              Verify Now
-            </Link>
+              {/* Glowing Metallic Gyro Ring 3 */}
+              <div className="absolute inset-12 rounded-full border-4 border-slate-500/20 border-t-amber-300/80 border-b-sky-400/80 animate-spin-slow transform rotate-60 shadow-[0_0_50px_rgba(56,189,248,0.2)]" />
+
+              {/* Center Core Metallic Globe */}
+              <div className="w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-800 border border-slate-500/40 shadow-2xl flex items-center justify-center relative overflow-hidden animate-float-slow">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.2),transparent_70%)]" />
+                <Globe className="w-20 h-20 text-slate-400/40 animate-pulse" />
+                
+                {/* Center Core Floating Text */}
+                <div className="absolute font-mono text-[10px] text-amber-200/90 font-bold tracking-widest text-center">
+                  0x71C7...8976F
+                </div>
+              </div>
+
+              {/* Coordinate Callout Tag (Reference Image Match) */}
+              <div className="absolute top-6 right-6 font-mono text-[10px] text-slate-400 bg-slate-950/80 px-2 py-1 rounded border border-slate-800 flex items-center gap-1.5 shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                <span>45.2532.30</span>
+              </div>
+
+            </div>
+
+            {/* FLOATING STATS OVERLAY CARD (Bottom Right of Graphic - Reference Image Match) */}
+            <div className="absolute -bottom-8 right-0 left-0 sm:left-auto bg-slate-950/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl z-20 font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-left">
+                
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Total Records</span>
+                  <p className="text-lg font-bold text-white font-serif">$1.2M+</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Trans. Speed</span>
+                  <p className="text-lg font-bold text-slate-200">65k <span className="text-xs text-slate-400 font-sans">TPS</span></p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Active Nodes</span>
+                  <p className="text-lg font-bold text-slate-200">14,822</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Security</span>
+                  <p className="text-lg font-bold text-emerald-400 flex items-center gap-1">
+                    Audited <span className="text-amber-300 text-xs">✦</span>
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
           </div>
 
         </div>
       </section>
 
-      {/* HOW IT WORKS FLOW */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-sky-400 font-mono mb-2">5-Step Security Workflow</h2>
-          <p className="text-3xl font-extrabold text-white">How VeriChain Guarantees Integrity</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
+      {/* THREE BOTTOM FEATURE CARDS (Reference Image Match with [01], [02], [03]) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-800/80">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl text-center relative space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 font-extrabold font-mono text-xl flex items-center justify-center mx-auto border border-sky-500/30">
-              1
+          {/* CARD 01 */}
+          <div className="group relative bg-slate-900/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl space-y-4 hover:border-slate-400/40 transition-all hover:-translate-y-1 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 group-hover:text-amber-300 transition-colors">
+                <Box className="w-6 h-6" />
+              </div>
+              <span className="font-mono text-xs text-slate-500 font-bold">[01]</span>
             </div>
-            <h3 className="font-bold text-sm text-white">ISSUE</h3>
-            <p className="text-xs text-slate-400">Authorized institution uploads original document & metadata.</p>
+
+            <div>
+              <h3 className="font-semibold text-lg text-white">Smart Contract Security</h3>
+              <p className="text-xs text-slate-400 font-mono mt-1">Sltra-fine cryptographic details & Solidity v0.8.20 consensus proof.</p>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between text-xs font-mono text-slate-400 group-hover:text-white transition-colors">
+              <span>→ Hover to Explore</span>
+            </div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl text-center relative space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 font-extrabold font-mono text-xl flex items-center justify-center mx-auto border border-emerald-500/30">
-              2
+          {/* CARD 02 */}
+          <div className="group relative bg-slate-900/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl space-y-4 hover:border-slate-400/40 transition-all hover:-translate-y-1 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 group-hover:text-sky-300 transition-colors">
+                <GitBranch className="w-6 h-6" />
+              </div>
+              <span className="font-mono text-xs text-slate-500 font-bold">[02]</span>
             </div>
-            <h3 className="font-bold text-sm text-white">HASH</h3>
-            <p className="text-xs text-slate-400">Web Crypto generates unique SHA-256 file fingerprint.</p>
+
+            <div>
+              <h3 className="font-semibold text-lg text-white">Git-Style Version Control</h3>
+              <p className="text-xs text-slate-400 font-mono mt-1">Parent-child hash chains link updates without overwriting historical state.</p>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between text-xs font-mono text-slate-400 group-hover:text-white transition-colors">
+              <span>→ View Network</span>
+            </div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl text-center relative space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 font-extrabold font-mono text-xl flex items-center justify-center mx-auto border border-purple-500/30">
-              3
+          {/* CARD 03 */}
+          <div className="group relative bg-slate-900/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl space-y-4 hover:border-slate-400/40 transition-all hover:-translate-y-1 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 group-hover:text-emerald-300 transition-colors">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <span className="font-mono text-xs text-slate-500 font-bold">[03]</span>
             </div>
-            <h3 className="font-bold text-sm text-white">BLOCKCHAIN</h3>
-            <p className="text-xs text-slate-400">Registers hash & version proof on EVM smart contract.</p>
-          </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl text-center relative space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 font-extrabold font-mono text-xl flex items-center justify-center mx-auto border border-indigo-500/30">
-              4
+            <div>
+              <h3 className="font-semibold text-lg text-white">SHA-256 Tamper Detector</h3>
+              <p className="text-xs text-slate-400 font-mono mt-1">Drag-and-drop instant file hashing comparison against on-chain proof.</p>
             </div>
-            <h3 className="font-bold text-sm text-white">VERSION</h3>
-            <p className="text-xs text-slate-400">Git-style hash chaining links new updates to parent hash.</p>
-          </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl text-center relative space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 font-extrabold font-mono text-xl flex items-center justify-center mx-auto border border-amber-500/30">
-              5
+            <div className="pt-2 flex items-center justify-between text-xs font-mono text-slate-400 group-hover:text-white transition-colors">
+              <span>→ Run Verification</span>
             </div>
-            <h3 className="font-bold text-sm text-white">VERIFY</h3>
-            <p className="text-xs text-slate-400">Public verifiers scan QR code or upload PDF to detect edits.</p>
           </div>
 
         </div>
       </section>
 
-      {/* CORE PROBLEM VS VERICHAIN ARCHITECTURE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      {/* CORE PROBLEM VS ARCHITECTURE SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-800/60">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           <div className="space-y-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-rose-400 font-mono">The Core Problem</h2>
-            <h3 className="text-3xl font-extrabold text-white leading-tight">PDFs Are Easily Manipulated. Normal Databases Can Be Secretly Altered.</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-rose-400">The Problem</span>
+            <h2 className="text-3xl font-extrabold text-white font-serif leading-tight">
+              PDFs Are Easily Manipulated. <br /> Normal Databases Can Be Secretly Altered.
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-sans">
               Traditional document validation relies on trusting plain database records or uploaded PDF files. An attacker can modify a grade from 8.0 to 8.5 in Adobe Acrobat in 30 seconds.
             </p>
+
             <div className="space-y-3 pt-2">
-              <div className="flex items-start gap-3 bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+              <div className="flex items-start gap-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
                 <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-slate-300">Fake educational marksheets and experience credentials flooding recruitment pipelines.</p>
+                <p className="text-xs text-slate-300 font-mono">Fake educational marksheets and experience credentials flooding recruitment pipelines.</p>
               </div>
-              <div className="flex items-start gap-3 bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+              <div className="flex items-start gap-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
                 <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-slate-300">Inability to audit who modified a record, when it changed, or what the previous state was.</p>
+                <p className="text-xs text-slate-300 font-mono">Inability to audit who modified a record, when it changed, or what the previous state was.</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-900/90 border border-sky-500/30 rounded-2xl p-6 shadow-2xl space-y-4">
+          <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <span className="text-xs font-bold text-sky-400 font-mono uppercase">VeriChain Architecture Principle</span>
-              <span className="text-[10px] bg-sky-950 text-sky-300 border border-sky-800 px-2 py-0.5 rounded font-mono">Immutable Proof</span>
+              <span className="text-[10px] bg-slate-800 text-sky-300 border border-slate-700 px-2.5 py-0.5 rounded-full font-mono">Immutable Proof</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                <h4 className="font-bold text-slate-200 flex items-center gap-1.5">
+            <div className="grid grid-cols-2 gap-4 text-xs font-mono">
+              <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-2">
+                <h4 className="font-bold text-slate-200 flex items-center gap-2">
                   <DatabaseIcon className="w-4 h-4 text-sky-400" /> Backend Storage
                 </h4>
-                <ul className="text-[11px] text-slate-400 space-y-1 font-mono">
+                <ul className="text-[11px] text-slate-400 space-y-1">
                   <li>• Document metadata</li>
                   <li>• User permissions</li>
                   <li>• Audit logs</li>
@@ -170,11 +282,11 @@ export default function LandingPage() {
                 </ul>
               </div>
 
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                <h4 className="font-bold text-slate-200 flex items-center gap-1.5">
+              <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-2">
+                <h4 className="font-bold text-slate-200 flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-purple-400" /> Blockchain Storage
                 </h4>
-                <ul className="text-[11px] text-slate-400 space-y-1 font-mono">
+                <ul className="text-[11px] text-slate-400 space-y-1">
                   <li>• SHA-256 document hash</li>
                   <li>• Parent version hash</li>
                   <li>• Issuer address</li>
@@ -183,50 +295,8 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <p className="text-xs text-slate-300 italic text-center pt-2 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+            <p className="text-xs text-slate-400 italic text-center pt-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 font-mono">
               "We never claim a database is immutable. Instead, we anchor cryptographic SHA-256 proof hashes on smart contracts to create a tamper-evident audit trail."
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* FEATURE CARDS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-sky-400 font-mono mb-2">Platform Capabilities</h2>
-          <p className="text-3xl font-extrabold text-white">Enterprise Features Built for Organizations</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center border border-sky-500/30">
-              <GitBranch className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-base text-white">Git-Style Version Control</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Legitimate document edits create Version 2, 3, etc. Every version is linked to its parent hash, maintaining full revision history without overwriting old state.
-            </p>
-          </div>
-
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-              <Upload className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-base text-white">Drag & Drop Tamper Detector</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Verifiers drag any PDF into the portal. The system instantly computes its SHA-256 hash and compares it side-by-side against the registered blockchain hash.
-            </p>
-          </div>
-
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-sky-500/50 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-              <ShieldAlert className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-base text-white">Instant Record Revocation</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              If a certificate was issued erroneously, issuers can revoke it on-chain with a stated reason. Verification queries immediately reflect REVOKED status.
             </p>
           </div>
 
