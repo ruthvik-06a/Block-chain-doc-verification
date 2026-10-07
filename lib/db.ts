@@ -14,6 +14,7 @@ export interface User {
   role: UserRole;
   organizationId?: string;
   organizationName?: string;
+  isApproved?: boolean;
   createdAt: string;
 }
 
@@ -35,12 +36,15 @@ export interface Certificate {
   organizationId: string;
   organizationName: string;
   subjectName: string;
+  holderEmail?: string;
   course: string;
   cgpa?: string;
   issueDate: string;
   expiryDate?: string;
   currentVersion: number;
   status: CertificateStatus;
+  verificationRequestStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  requestNotes?: string;
   metadata?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
@@ -123,7 +127,19 @@ function getDbPath(): string {
 
 // Clean Initial Seed Data — NO fake certificates, NO fake logs, NO fake verifications
 const SEED_DATA: DatabaseSchema = {
-  organizations: [],
+  organizations: [
+    {
+      id: "org-01",
+      name: "XYZ Global University",
+      type: "University",
+      email: "issuer@verichain.org",
+      logo: "🎓",
+      walletAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      verificationStatus: "VERIFIED",
+      address: "Innovation Park, CA",
+      createdAt: "2026-01-01T00:00:00.000Z"
+    }
+  ],
   users: [
     {
       id: "usr-admin-01",
@@ -131,35 +147,77 @@ const SEED_DATA: DatabaseSchema = {
       email: "admin@verichain.org",
       passwordHash: "admin123",
       role: "SUPER_ADMIN",
+      isApproved: true,
       createdAt: "2026-01-01T00:00:00.000Z"
     },
     {
       id: "usr-issuer-01",
-      name: "University Registrar",
+      name: "Authorized Issuer (XYZ Univ)",
       email: "issuer@verichain.org",
       passwordHash: "issuer123",
       role: "ISSUER",
+      organizationId: "org-01",
+      organizationName: "XYZ Global University",
+      isApproved: true,
       createdAt: "2026-01-01T00:00:00.000Z"
     },
     {
-      id: "usr-verifier-01",
-      name: "Corporate Verifier",
-      email: "verifier@verichain.org",
-      passwordHash: "verifier123",
-      role: "VERIFIER",
-      createdAt: "2026-01-01T00:00:00.000Z"
+      id: "usr-issuer-pending-01",
+      name: "Pending Issuer (Tech Institute)",
+      email: "pending-issuer@verichain.org",
+      passwordHash: "pending123",
+      role: "ISSUER",
+      organizationId: "org-02",
+      organizationName: "Tech Institute of Tech",
+      isApproved: false,
+      createdAt: "2026-01-02T00:00:00.000Z"
     },
     {
-      id: "usr-public-01",
-      name: "Public User",
-      email: "guest@verichain.org",
-      passwordHash: "guest123",
+      id: "usr-holder-01",
+      name: "Alex Johnson (Document Holder)",
+      email: "holder@verichain.org",
+      passwordHash: "holder123",
       role: "PUBLIC_USER",
+      isApproved: true,
       createdAt: "2026-01-01T00:00:00.000Z"
     }
   ],
-  certificates: [],
-  versions: [],
+  certificates: [
+    {
+      id: "cert-01",
+      certificateId: "VC-2026-CS-8891",
+      organizationId: "org-01",
+      organizationName: "XYZ Global University",
+      subjectName: "Alex Johnson",
+      holderEmail: "holder@verichain.org",
+      course: "B.Sc. Computer Science & AI",
+      cgpa: "3.92",
+      issueDate: "2026-05-15",
+      currentVersion: 1,
+      status: "ACTIVE",
+      verificationRequestStatus: "APPROVED",
+      createdAt: "2026-05-15T10:00:00.000Z",
+      updatedAt: "2026-05-15T10:00:00.000Z"
+    }
+  ],
+  versions: [
+    {
+      id: "ver-01",
+      certificateId: "cert-01",
+      version: 1,
+      fileName: "degree_alex_johnson.pdf",
+      fileSize: 245000,
+      fileReference: "ipfs://QmbXyZ8891DegreeDoc",
+      documentHash: "A1B2C3D4E5F67890123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0",
+      previousHash: "0000000000000000000000000000000000000000000000000000000000000000",
+      changeDescription: "Initial Document Issuance",
+      createdBy: "usr-issuer-01",
+      createdByName: "Authorized Issuer (XYZ Univ)",
+      createdAt: "2026-05-15T10:00:00.000Z",
+      blockchainTxHash: "0x89ab12cd34ef567890abcdef1234567890abcdef1234567890abcdef12345678",
+      blockNumber: 18520412
+    }
+  ],
   auditLogs: [],
   verifications: []
 };
@@ -216,6 +274,19 @@ export class Database {
     db.users.push(newUser);
     this.write(db);
     return newUser;
+  }
+
+  static updateUserApproval(userId: string, isApproved: boolean): User | null {
+    const db = this.read();
+    const userIndex = db.users.findIndex(u => u.id === userId);
+    if (userIndex === -1) return null;
+    db.users[userIndex].isApproved = isApproved;
+    this.write(db);
+    return db.users[userIndex];
+  }
+
+  static getPendingIssuers(): User[] {
+    return this.getUsers().filter(u => u.role === 'ISSUER' && u.isApproved === false);
   }
 
   // --- Organizations ---
