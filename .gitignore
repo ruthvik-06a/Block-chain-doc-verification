@@ -1,0 +1,29 @@
+# Dependencies
+/node_modules
+/.pnpm
+/.yarn
+
+# Next.js build output
+/.next/
+/out/
+/build
+
+# Hardhat / Artifacts
+/cache
+/artifacts
+/typechain
+/typechain-types
+
+# Environment & local files
+.env*.local
+.env
+verichain_db.json
+scratch/verichain_db.json
+
+# Misc
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
