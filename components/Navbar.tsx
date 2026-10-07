@@ -25,12 +25,13 @@ export default function Navbar() {
     }
   };
 
-  const switchRole = async (role: UserRole) => {
+  const switchRole = async (role: UserRole, emailOverride?: string) => {
     try {
+      const payload = emailOverride ? { email: emailOverride } : { demoRole: role };
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ demoRole: role })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.user) {
@@ -152,29 +153,29 @@ export default function Navbar() {
                   onClick={() => { switchRole('SUPER_ADMIN'); setDropdownOpen(false); }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs text-slate-200 flex items-center justify-between"
                 >
-                  <span>Super Admin</span>
-                  <span className="text-[10px] bg-purple-900/60 text-purple-300 px-1.5 py-0.5 rounded">Full System</span>
+                  <span>System Admin</span>
+                  <span className="text-[10px] bg-purple-900/60 text-purple-300 px-1.5 py-0.5 rounded border border-purple-700">Governance</span>
                 </button>
                 <button
                   onClick={() => { switchRole('ISSUER'); setDropdownOpen(false); }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs text-slate-200 flex items-center justify-between"
                 >
-                  <span>University Admin (Issuer)</span>
-                  <span className="text-[10px] bg-sky-900/60 text-sky-300 px-1.5 py-0.5 rounded">XYZ Univ</span>
+                  <span>Approved Issuer</span>
+                  <span className="text-[10px] bg-sky-900/60 text-sky-300 px-1.5 py-0.5 rounded border border-sky-700">XYZ Univ</span>
                 </button>
                 <button
-                  onClick={() => { switchRole('VERIFIER'); setDropdownOpen(false); }}
+                  onClick={() => { switchRole('ISSUER', 'pending-issuer@verichain.org'); setDropdownOpen(false); }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs text-slate-200 flex items-center justify-between"
                 >
-                  <span>Corporate Verifier</span>
-                  <span className="text-[10px] bg-amber-900/60 text-amber-300 px-1.5 py-0.5 rounded">Recruiter</span>
+                  <span>Pending Issuer</span>
+                  <span className="text-[10px] bg-amber-900/60 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700">Auth Guard</span>
                 </button>
                 <button
-                  onClick={() => { switchRole('PUBLIC_USER'); setDropdownOpen(false); }}
+                  onClick={() => { switchRole('PUBLIC_USER', 'holder@verichain.org'); setDropdownOpen(false); }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs text-slate-200 flex items-center justify-between"
                 >
-                  <span>Public Guest</span>
-                  <span className="text-[10px] bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded">Public</span>
+                  <span>User / Holder</span>
+                  <span className="text-[10px] bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700">Wallet</span>
                 </button>
               </div>
             )}
